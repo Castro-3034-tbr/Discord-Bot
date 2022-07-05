@@ -1,4 +1,4 @@
-#Inicializacion de librerias 
+#Library initialization 
 from cmath import e
 from http import server
 import discord
