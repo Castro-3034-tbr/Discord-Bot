@@ -84,4 +84,4 @@ async def on_message(message):
 
 
 #Token of the bot
-bot.run(keys.get_discord_key())
+bot.run(DiscordToken)
