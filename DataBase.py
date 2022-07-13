@@ -9,3 +9,5 @@ class Keys():
         return self.discord_token
 
 keys = Keys()
+
+BanWords = []
