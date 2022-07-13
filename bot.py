@@ -3,6 +3,7 @@ from cmath import e
 from http import server
 import discord
 from discord.ext import commands
+from matplotlib.style import use
 from class_user import *
 
 #Do a bot login
@@ -79,6 +80,18 @@ async def adduser(ctx, *, user: discord.User ):
     await ctx.send(f'{user.name} was added to the list')
 
 
+#Fuction to set a role for the user
+@bot.command()
+async def setRole(ctx, *, user: discord.User,role:discord.Role ):
+    print(user.name)
+    if role in user.roles:
+        print(role.name)
+        #await ctx.send(f'{user} already has the role {role}')
+    else :
+        await user.add_roles(role)
+        #await ctx.send (f'{user.name} has been added to the role {role.name}')
+
+#F
 
 
 #List to save the users
