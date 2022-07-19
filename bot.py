@@ -7,7 +7,7 @@ from matplotlib.style import use
 from class_user import *
 
 #Do a bot login
-bot = commands.Bot(command_prefix='ç', description='Bot de prueba')
+bot = commands.Bot(command_prefix='ç', description='Bot de prueba', help_command=None)
 
 #Make a event to listen the messages 
 @bot.command()
