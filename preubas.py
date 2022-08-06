@@ -1,19 +1,8 @@
-#Discord Token
-from asyncio.windows_events import ERROR_CONNECTION_ABORTED
-
-
-DiscordToken = 'OTkzMDkwNzI3MTgzNjY3MjUw.GGpX7c.w2lT-w4fRuH266hq02IxoWAJSG1H3Zwpp63ai0'
-
-#Ban Word List
-BanWords = []
-
-#Class to storage a words
 class Node:
     """Class Node"""
     def __init__(self,datoInicial):
         self.Data = datoInicial
         self.next = None
-        self.repetitions = 0
 
     def GetData(self):
         return self.Data
@@ -26,9 +15,6 @@ class Node:
 
     def AssignNext(self,nuevosiguiente):
         self.siguiente = nuevosiguiente
-    
-    def AddRepetition(self):
-        self.repetitions += 1
 
 class ListaNoOrdenada:
     """ Class No Ordered List """
@@ -78,26 +64,14 @@ class ListaNoOrdenada:
             self.head = actual.GetNext()
         else:
             previo.asignarSiguiente(actual.GetNext())
-    
-    def AddRepetition(self,item):
-        """Fuction to add a repetition """
-        actual = self.head
-        encontrado = False
-        while actual != None and not encontrado:
-            if actual.GetData() == item:
-                encontrado = True
-                actual.AddRepetition()
-            else:
-                actual = actual.GetNext()
 
-class WordsDataBase():
+class Words():
     
     def __init__(self):
         self.words = [None]*27
     
     def addWord(self, word):
         #Get the key of the first letter of the word
-        
         Key = self.GetKey(word[0])
         
         #Get the list of words that start with the same letters
@@ -113,17 +87,14 @@ class WordsDataBase():
             if not (self.words[Key]).search(word):
                 #If not, add the word to the list
                 list.add(word)
-            else:
-                list = self.words[Key]
-                print(list)
-                list.AddRepetition(word)
-        
-        print("The word '{}' was added to the list of words".format(word))
-    
     
     def GetKey(self, letter):
         letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
         return letters.index(letter.lower())
 
-Words = WordsDataBase()
+Words = Words()
+Words.addWord("Hola")
 
+Words.addWord("hola")
+Words.addWord("Xoel")
+int("a")

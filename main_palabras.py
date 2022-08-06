@@ -1,8 +1,11 @@
 #initialization the libraries
+from multiprocessing import AuthenticationError
+from pyexpat.errors import messages
 import discord 
 from discord.ext import commands
 from matplotlib.pyplot import title
 from DataBase import *
+
 from discord.ext.commands import has_permissions, MissingPermissions
 from discord import Member
 import requests
@@ -95,77 +98,35 @@ async def BanWord(ctx,*, message: str):
     print(BanWords)
     await ctx.send("The word {} has been added to the ban list".format(message))
 
+@bot.command()
+async def Stop(ctx):
+    """Fuction for stop the bot but The admins can use this command"""
+    if ctx.author.id == 327803995244593153:
+        await ctx.send("I am stopping")
+        await bot.logout()
+    else:
+        await ctx.send("You must't use this command to stop the bot")
 
 @bot.event
 async def on_message(message):
     """Fuction for detect some specific words that user write in the channels"""
     print("Mensaje: " + message.content)
-    for i in BanWords: 
-        if message.content in BanWords:
-            await message.delete()
-            await message.channel.send(f"{message.author.mention} Don't use that word!, Because this word is banned")
-            bot.dispatch('profanity', message, i)
-            print(f"{message.author.mention} Don't use that word!, Because this word is banned")
-            return
-    await bot.process_commands(message)
-
-
-
-@bot.command()
-@has_permissions(kick_members=True)
-async def kick(ctx, member:discord.Member, * , reason=None):
-    """Fuction for  Kick a user"""
-    print("Kick a user")
-    print("Reason",reason)
-    await member.kick(reason=reason)
     
-    embed = discord.Embed(title= 'A admin has kicked a user')
-    embed.add_field(name='Name', value=member.name)
-    embed.add_field(name='ID', value=member.id)
-    embed.add_field(name='Reason', value=reason)
-    embed.set_thumbnail(url=member.avatar_url)
-    await ctx.send(embed=embed)
-
-@kick.error
-async def kick_error(ctx, error):
-    if isinstance(error, commands.MissingPermissions):
-        await ctx.send("You dont have the permission to use this command")
-
-@bot.command()
-@has_permissions(ban_members=True)
-async def ban(ctx, member:discord.Member, * , reason= None):
-    """#Fuction for Ban a user"""
-    await member.ban(reason=reason)
-    embed = discord.Embed(title= 'A admin has banned a user')
-    embed.add_field(name='Name', value=member.name)
-    embed.add_field(name='ID', value=member.id)
-    embed.add_field(name='Reason', value=reason)
-    embed.set_thumbnail(url=member.avatar_url)
-    await ctx.send(embed=embed)
-
-@ban.error
-async def ban_error(ctx, error):
-    if isinstance(error, commands.MissingPermissions):
-        await ctx.send("You dont have the permission to use this command")
-
-
-@bot.command(pass_context=True)
-@has_permissions(manage_messages=True)
-async def setRole(ctx, user: discord.Member,* , role: discord.Role):
-    """Fuction to set a role to a user"""
-    print(role)
-    if role is user.roles:
-        await ctx.send(f"{user.username} has this role")
-    else:
-        print("hola")
-        await user.add_roles(role)
-        await ctx.send(f"The role {role.username} has been added to the user {user.username}")
-
-@setRole.error
-async def role_error(ctx, error):
-    if inistance (error,commands.MissingPermissions):
-        await ctx.send("You dont have the permission to use this command")
-
+    #Fuccion for detect if the user write a word that is in the ban list
+    words = message.content.split(" ")
+    for i in words:
+        if i[0] != "ç":
+            Words.addWord(i)
+            if i in BanWords:
+                if message.author.id != 993090727183667250 :
+                    
+                    await message.delete()
+                    await message.channel.send(f"{message.author.mention} Don't use that word!, Because this word is banned")
+                    bot.dispatch('profanity', message, i)
+                    print(f"{message.author.mention} Don't use that word!, Because this word is banned")
+                    return
+    
+    await bot.process_commands(message)
 
 
 #Token of the bot
