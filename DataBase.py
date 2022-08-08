@@ -127,3 +127,55 @@ class WordsDataBase():
 
 Words = WordsDataBase()
 
+
+#Data Base for save all the users
+class User():
+    """Class to represent a user"""
+    
+    def __init__(self,name,id,roles, created_date, join_date, high_role):
+        self.Name = name
+        self.Id = id
+        self.Warn = 0
+        self.CreatedDate = created_date
+        self.JoinedDate = join_date
+        self.HighRole = high_role
+        self.Roles = roles
+    
+    def AddWarning(self):
+        self.Warn += 1
+
+class UserDataBase():
+    """Class to save the all users  """
+    
+    def __init__(self):
+        self.user_list = []
+    
+    def AddUser(self, user):
+        self.user_list.append(user)
+        
+    
+    def RemoveUser(self, name):
+        posicion = 0
+        for user in self.user_list:
+            if user.name == name:
+                self.user_list.pop(posicion)
+                break
+            else:
+                posicion += 1
+
+    def GetWarn(self, name):
+        """Function to get the warning of a user"""
+        for user in self.user_list:
+            if user.Name == name:
+                return user.Warn
+        return
+    
+    def AddWarning(self, name):
+        for user in self.user_list:
+            if user.Name == name:
+                user.AddWarning()
+                return
+        return
+
+
+UserDataBase = UserDataBase()
