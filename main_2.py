@@ -45,6 +45,7 @@ async def help(ctx):
     embed.add_field(name="BanWord <Word> ", value="Ban a word", inline=False)
     embed.add_field(name="Kick <@User Reason>", value="Kick a user", inline=False)
     embed.add_field(name="Ban <@User Reason>", value="Ban a user", inline=False)
+    embed.add_field(name="UnBan <@User>", value="UnBan a user", inline=False)
     await ctx.send(embed=embed)
 
 
@@ -158,6 +159,44 @@ async def UserInfo(ctx, member: discord.Member = None):
     embed.add_field(name="Highest Role:", value=member.top_role.mention)
     embed.add_field(name="Warning:", value=UserDataBase.GetWarn(member.display_name))
 
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def ServerInfo(ctx):
+    """Fuction to send the server info"""
+    
+    #Get the server info
+    bot = 0 
+    
+    for i in ctx.guild.members:
+        if i.bot == True:
+            bot +=1
+    users = ctx.guild.member_count - bot
+    
+    text = 0
+    voice = 0
+    category = 0
+    for i in ctx.guild.channels:
+        print (i.type)
+        if i.type == discord.ChannelType.text:
+            text += 1
+        elif i.type == discord.ChannelType.voice:
+            voice += 1
+        elif i.type == discord.ChannelType.category:
+            category += 1
+    
+    general = text + voice + category
+    
+    #Send the server info
+    embed = discord.Embed(title="Server Info", color=0x00ff00)
+    embed.set_thumbnail(url=ctx.guild.icon_url)
+    embed.add_field(name="Server Name", value=ctx.guild.name, inline=True)
+    embed.add_field(name="Server ID", value=ctx.guild.id, inline=True)
+    embed.add_field(name="Server Owner", value=ctx.guild.owner.mention, inline=True)
+    embed.add_field(name="Server Created at", value=ctx.guild.created_at.strftime("%d/%m/%Y"), inline=True)
+    embed.add_field(name="Number of Roles ", value=len(ctx.guild.roles), inline=True)
+    embed.add_field(name="Number of Members", value="{} members\n {} Bots , {} Humans ".format(ctx.guild.member_count, bot , users), inline=True)
+    embed.add_field(name="Number of Channels", value= "{} channels\n {} Categories \n {} Text {} Voice ".format(general,  category , text , voice), inline=True)
     await ctx.send(embed=embed)
 
 @bot.command(pass_context=True)

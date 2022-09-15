@@ -1,4 +1,5 @@
 #initialization the libraries
+from unicodedata import category
 import discord 
 from discord.ext import commands
 from matplotlib.pyplot import title
@@ -8,8 +9,6 @@ from discord import Member
 import requests
 from discord.utils import get
 from datetime import datetime
-
-import googletrans
 
 
 #Create the bot 
@@ -27,20 +26,12 @@ async def on_ready():
     #Print a message in the terminal
     print("Bot conect")
 
-translator = googletrans.Translator()
-
 @bot.command()
-async def Translate(ctx, *, text):
-    """Function to translate a word"""
-    #Get the text to translate
-    text = text.split(",")
-    textIn = text[0]
-    lenguage1 = text[1]
-    lenguage2 = text[2]
-
-    translated = translator.translate(textIn, src="es" ,dest="en" ) 
+async def suggestion(message):
+    """"Fuction to made a suggestion for suggestion"""
+    suggestation = message
     
-    await ctx.send(translated)
-
+    print("Suggestion:" + suggestion)
+    
 #Token of the bot
 bot.run(DiscordToken)
