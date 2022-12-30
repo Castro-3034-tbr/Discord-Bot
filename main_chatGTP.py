@@ -11,6 +11,11 @@ from discord.ext.commands import has_permissions, MissingPermissions
 from discord import Member
 import requests
 from discord.utils import get
+from pyChatGPT import ChatGPT
+
+#Creamos el chat 
+token_session = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..HJ70SFhbuHEo1SMw.ISa8uTK7RDqgo-e9nllVNjhE_KBpcyGgvl_k58W0VCoJ8gCNaYbN6UWLhKdr2I0BkBynm1tg1JhrTxlZ1fDt-tkIbZFlPYZRE1F4MW1goS99s03xwXFaamRmNZG8M8m47yCSkUL78SWAwj5JCF8Ae0p2pzU7afo0-_fFgfRRryvuNwXwe8r9qTYNwiUZYiS8b3fKi3QQavcNyE_I8sNjGxc1eZB8yqAr1xSw754Z1lLzb7ohE6946CzrI7uKZ6l0eZiuKYDauuuMhTuF9dYxtuLf5SFyFPmKKOsT9WScUN_6IhoeHl8xjT7WLdkBFoMGHdkKj-sm_DOU2hC_DGfeoPXbTYsGPIAxZEdtEITO5TVD0oFKOnENFdTm-ffun1w5JKCOzr6dJyaKPxq54rp1ZCnUJoiVEavWAfVSmqJayCXIcXbz4tvZv0lf_IaqLY9LRZYgGiHr6AvH-zHBVpBcxwBN3v8vVSoYfFU9npWmvJTE3qW0O8yXyxrg_kQJkBUemKbzJdPJjzJQArixLDMyOVTYbzkcvWPTeem044g3-o5hTdn_Ly1VEFKvGv-KunaM5KFJV9NB_9YDwmk8iO4sBy2PBamoFSNtqL44gvc8PBO87z2FhyEEUnjiOBjwLq9r5U18WsaoR-ghlpnBjNrudyDGpcLvEHX3KEnSy6eQ5Nqi-uj8l9Vn4l3q2_d4XQs9S3JlZLckG_7yTFlLirVZ1WNiP-PHqISQHq6i5QY1HLAh71LNGlJCEpIkOKnltuv_lJi6vD0zhGNuwkEYPEbwoqNUgsOQd7nS198pKyVtHF_m6O72RvpU-25RzdkzjBGOPKaX5d0PEnxfiaZfm4Px-KTPlYy48NbaAwjHBYL3-5FHhMVJBozl_5LgmcXtqygwnw30GHyIWZklgtp16ypHUu3Y-aRM5IG5UHQDf4SojtBXgvtsaTBdT_LOMDofQmAwPVlliZuoK_HKiTea41sB5l2zZfZFiMi-HtT2kDvtzRaK0nebsp_KOOmzzUaTszmNFFHOyap66p_g7nO7n1vzZPim7UK-ETckSv_HK5usQTfgaZdZBWUOiI0z7vptOv5haW0bgYCa7d7j6sZFFCCiJluQ0aM_HtIJFiA6k8aOpew7_CWzaO5Jk30XAT7YBmxJPAq4_kvaSTgECWB9AxO6zfdKidF9SdCZKPKjQCB4bMjIVNGkWXt3ZJi6KVOuxvShFLAQ6NeoTwlsZesB89k4IEwr_YsTcVXSXJADMoXqk6ZnBQg31Y8UC0iIaox1NXwL4Zlg3aFHhDa1BSDV_jwv02HoumnmwJTlVvdkIZP9cdSkJ-dse3h1QhyQbfVpZZC72ir6RcItqYVP5PjRlvk1S22sQlgsQI9U6N4eKR9dLNIDFOLOJL67CHk3hWygpjjyESUCz_zbulEFY0q45P-4Enver0X8SrCFln3EHb9opVDArx3FY_0Hy1kmkPF_fV8ocX7CmNZN4LbM7QdNbETOsdvtB8f_EvgRDnxTDLrZohPiKAPEz9qHATNKnSB0qx3ZbCgT1ttjXXqIRD3f5-0Fv_7A-lW5ejmUfuvloeWSzLo33nqO3_mO3j5jZYSkjdVVxE8QE93jaNRYpdmJilV9DJBIbQ7e2EckQU27wKbvumk9-nQE24a9lBQCvS4k0KolYqWNodj-ZsSaH4WDZC_5MdLFm0afB2QOSGsH2_qphosFuOrCWjxe7S0_eMG0Xs5XKDzEVePNvNxUTgVFmuYuDuK56ow4am01VX9l-iBO0RvIpuQ1nMlc2NmZdbdcWrZjC7h3X1QrxEpJpIajeP9oys93Xx5i7joglibYIAeBekupDNvpHYOHRIHuxGvfzaJhZ7YWJCbiBO00lYOSqUyNUtvSH79Cp9-k8ThIXXwEixO2Y7KQOB2HPtZx1eHtOUJc7GTAcNVYNniCungkVP73HetqZ_iKgZIF48ggpiiHfsRe3h1EwqxAuOsAltSRUmCoUO4nMC_WkEWgtVcjTSUKkfaohSL8m7lJlVWbZOjBYVSPCoOnVbnHv1LFsWPLedv2nXhQPI61OGjiWxRztVTwBFpUTDJN9uAQWXtWrU30cKJcUHTGmm3xHdAOYC6GJumBHLZC_5HRIg8SdQJ720-NBz-igCUY7RzOtyQqM6hshn2Ap__kcuetu9lTC7SlA6XrviC18hTUYKGp9825ycPzkLhYOUWF8Y9OkgEsgKuE23Om0A7B5f_aNQvNwgkK1o0cmSN7q1H_JlD6kn8NiuSfP7oIyoI8bqdOAISk6Tfv3sYq_3TmW1ka1d8s3No_hIqGR5BFvsuwo7N5h7BaBz0Gz5u6yQ5CkboT5-PYz8cUSnMcJHmEV8k9Ol0NzVsibX6UEIZn1Ps_xKaBwlencmATm92k5wEG-5xc_TRTuJmil68lHaBsDw.QoF1rFLSqRm11v9RXSFDSQ"
+api = ChatGPT(token_session)
 
 
 
@@ -20,7 +25,6 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='ç', description='Bot de prueba',  intents=intents)
 bot.remove_command('help')
-
 
 #Commands
 @bot.event
@@ -234,33 +238,26 @@ async def SetRole(ctx,member: discord.Member,* , role: discord.Role):
         await ctx.send("You don't have the permission to use this command")
 
 @bot.command()
+async def GenerateText(ctx,*, message:str):
+    """Fuction for generate a text whit the model"""
+    #Read a message
+    print("Mensaje: " + message)
+    #Send a message
+    resp = api.send_message(message)
+    respuesta = resp["message"]
+    print("Respuesta: ", respuesta)
+    
+    #Send a message whit bot in the channel
+    await ctx.send(respuesta)
+    await bot.process_commands(message)
+
+
+@bot.command()
 async def BanWord(ctx,*, message: str):
     """Fuction for add a word to the ban list"""
     BanWords.append(message)
     print(BanWords)
     await ctx.send("The word {} has been added to the ban list".format(message))
-
-
-@bot.event
-async def on_message(message):
-    """Fuction for detect some specific words that user write in the channels"""
-    print("Mensaje: " + message.content)
-    
-    #Fuccion for detect if the user write a word that is in the ban list
-    words = message.content.split(" ")
-    for i in words:
-        if i[0] != "ç" or i!="\n":
-            Words.addWord(i)
-            if i in BanWords:
-                if message.author.id != 993090727183667250 :
-                    
-                    await message.delete()
-                    await message.channel.send(f"{message.author.mention} Don't use that word!, Because this word is banned")
-                    bot.dispatch('profanity', message, i)
-                    print(f"{message.author.mention} Don't use that word!, Because this word is banned")
-                    return
-    
-    await bot.process_commands(message)
 
 
 #Token of the bot
