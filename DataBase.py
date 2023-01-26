@@ -121,6 +121,7 @@ class WordsDataBase():
         print("The word '{}' was added to the list of words".format(word))
     
     
+    
     def GetKey(self, letter):
         letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
         return letters.index(letter.lower())
