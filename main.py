@@ -195,6 +195,9 @@ async def on_member_remove(member):
 
 #region: Commands
 
-
+@bot.command()
+async def Hello(ctx):
+    """Function to say hello (Test command)"""
+    await ctx.send("Hello, I am a bot created by @castro_3034_tbr")
 
 bot.run(TOKEN)
