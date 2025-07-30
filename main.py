@@ -8,6 +8,8 @@ from discord import User, Member
 from dotenv import load_dotenv
 from datetime import datetime
 
+import mysql.connector
+
 import sys
 
 # Charge environment variables from .env file
@@ -15,6 +17,7 @@ load_dotenv("conf/.env")
 TOKEN = os.getenv("DISCORD_TOKEN")
 LOG_CHANNEL_ID = os.getenv("LOG_CHANNEL_ID")
 JOIN_CHANNEL_ID = os.getenv("JOIN_CHANNEL_ID")
+STAFF_CHANNEL_ID = os.getenv("STAFF_CHANNEL_ID")
 
 # Set up intents and create bot instance
 intents = discord.Intents.default()
@@ -29,39 +32,159 @@ intents.voice_states = True  # Required to access voice state data
 intents.bans = True  # Required to access ban data
 bot = commands.Bot(command_prefix="ç", intents=intents)
 
+#region Database Init
+def close_database():
+    """Function to close the database connection."""
+
+    global conn, cursor
+    if 'conn' in globals() and 'cursor' in globals():
+        print("Closing database connection...")
+        cursor.close()
+        conn.close()
+        print("✅ Database connection closed.")
+    else:
+        print("❌ No database connection to close.")
+
+try:
+
+    # Open the database file
+    with open("DB/init_db.sql", "r") as f:
+        sql_script = f.read()
+
+    # Connect to the MySQL database and execute the SQL script
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="botuser",
+        password="30Vacascomen.",
+        database="discord_bot"
+    )
+
+    cursor = conn.cursor()
+    for stmt in sql_script.split(";"):
+        if stmt.strip():
+            cursor.execute(stmt)
+    conn.commit()
+
+    print("✅ Base de datos inicializada.")
+
+except Exception as e:
+    print(f"❌ Error al inicializar la base de datos: {e}")
+    sys.exit(1)
+
 
 #region: Events and Commands to start and stop the bot
 
 def get_server_data():
     """Function to get the server and user data."""
+    global cursor, conn
 
-    # Server data
     for guild in bot.guilds:
-        print(f"\nServer: {guild.name}")
-        print(f"ID: {guild.id}")
-        print(f"Owner: {guild.owner}")
-        print(f"Total members: {guild.member_count}")
-        print(f"Total channels: {len(guild.channels)}, list: {[channel.name for channel in guild.channels]}")
-        print(f"Total roles: {len(guild.roles)}, list: {[role.name for role in guild.roles if role.name != '@everyone']}")
-        print(f"Custom emojis: {len(guild.emojis)}, list: {[emoji.name for emoji in guild.emojis]}")
-        print(f"Creation date: {guild.created_at.strftime('%d/%m/%Y %H:%M:%S')}")
-        print(f"Server description: {guild.description if guild.description else 'No description available'}")
-        print(f"Verification level: {guild.verification_level}")
-        print(f"AFK voice channel: {guild.afk_channel.name if guild.afk_channel else 'No AFK voice channel'}")
-        print(f"Welcome channel: {guild.system_channel.name if guild.system_channel else 'No welcome channel'}")
-        print("---" * 40)
+            # --- Insertar servidor ---
+        insert_server_query = """
+            INSERT INTO servers (
+                server_id,
+                name,
+                owner_id,
+                created_at,
+                description,
+                member_count,
+                total_roles,
+                total_channels,
+                afk_timeout,
+                afk_channel_id,
+                system_channel_id,
+                icon_url,
+                features
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE name=VALUES(name), member_count=VALUES(member_count)
+        """
+        cursor.execute(insert_server_query, (
+            guild.id,
+            guild.name,
+            guild.owner_id,
+            guild.created_at,
+            guild.description,
+            guild.member_count,
+            len(guild.roles),
+            len(guild.channels),
+            guild.afk_timeout,
+            guild.afk_channel.id if guild.afk_channel else None,
+            guild.system_channel.id if guild.system_channel else None,
+            str(guild.icon.url) if guild.icon else None,
+            ",".join(guild.features)
+        ))
 
-        # Iterate over all members (requires intents.members = True)
+        # --- Insertar roles del servidor ---
+        insert_role_query = """
+            INSERT IGNORE INTO roles (
+                role_id,
+                server_id,
+                name,
+                color,
+                position,
+                mentionable,
+                hoist,
+                permissions
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        for role in guild.roles:
+            if role.name != "@everyone":
+                cursor.execute(insert_role_query, (
+                    role.id,
+                    guild.id,
+                    role.name,
+                    str(role.color),
+                    role.position,
+                    role.mentionable,
+                    role.hoist,
+                    role.permissions.administrator
+                ))
+
+        # --- Insertar usuarios y sus roles ---
+        insert_user_query = """
+            INSERT INTO users (
+                user_id,
+                server_id,
+                username,
+                display_name,
+                is_bot,
+                joined_at,
+                status,
+                avatar_url,
+                boosting_since
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE display_name=VALUES(display_name), status=VALUES(status)
+        """
+
+        insert_user_role_query = """
+            INSERT IGNORE INTO user_roles (
+                user_id,
+                role_id
+            ) VALUES (%s, %s)
+        """
+
         for member in guild.members:
-            print(f"User: {member.name}")
-            print(f"ID: {member.id}")
-            print(f"Display name: {member.display_name}")
-            print(f"Bot: {member.bot}")
-            print(f"Status: {member.status}")
-            print(f"Roles: {[role.name for role in member.roles if role.name != '@everyone']}")
-            print("-" * 20)
-        print("/////" * 40)
 
+            #Add the user to the database
+            cursor.execute(insert_user_query, (
+                member.id,
+                guild.id,
+                member.name,
+                member.display_name,
+                member.bot,
+                member.joined_at,
+                str(member.status),
+                str(member.avatar.url) if member.avatar else None,
+                member.premium_since
+            ))
+            #Add the user roles to the database
+            for role in member.roles:
+                if role.name != "@everyone":
+                    cursor.execute(insert_user_role_query, (member.id, role.id ))
+
+        # --- Confirmar cambios ---
+        conn.commit()
+        print(f"✅ Datos insertados para servidor '{guild.name}' ({guild.id})")
 
 @bot.event
 async def on_ready():
@@ -87,7 +210,7 @@ async def on_ready():
     print(ready_message)
 
     # #Obtain server data
-    # get_server_data()
+    get_server_data()
 
 
 @bot.command()

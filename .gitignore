@@ -19,3 +19,5 @@ Thumbs.db
 
 #Archivo de env
 .env
+
+.trunk/
